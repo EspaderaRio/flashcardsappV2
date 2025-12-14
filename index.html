@@ -900,7 +900,7 @@ function importCardsFromJsonForCurrentSet() {
 async function generateCardsWithAI(topic, count) {
   if (!currentSet?.set_id) {
     showToast("No set selected");
-    return;
+    return false;
   }
 
   showAILoading();
@@ -931,13 +931,15 @@ async function generateCardsWithAI(topic, count) {
       });
     }
 
-    // 🔥 THIS IS THE MISSING PIECE
+    // force UI refresh
     dataHandler.onDataChanged(window.dataSdk.getAll());
 
     showToast(`Added ${json.cards.length} flashcards`);
+    return true; // ✅ THIS WAS MISSING
   } catch (err) {
     console.error(err);
     showToast("AI generation failed");
+    return false; // ✅ ALSO IMPORTANT
   } finally {
     hideAILoading();
   }
