@@ -900,30 +900,19 @@ function importCardsFromJsonForCurrentSet() {
 async function generateCardsWithAI(topic, count) {
   if (!currentSet?.set_id) {
     showToast("No set selected");
-    return false;
+    return;
   }
 
   showAILoading();
 
   try {
-    const res = await fetch(
-      "https://flashcards-ai-backend.onrender.com/api/generate-cards",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-body: JSON.stringify({
-  topic,
-  count
-})
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
-    }
+    const res = await fetch(AI_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ topic, count })
+    });
 
     const json = await res.json();
-
     if (!Array.isArray(json.cards)) {
       throw new Error("Invalid AI response");
     }
@@ -941,17 +930,19 @@ body: JSON.stringify({
         created_at: new Date().toISOString()
       });
     }
-showToast(`Added ${json.cards.length} cards`);
-   renderApp(); // 🔥 THIS IS REQUIRED
-   return true;
+
+    // 🔥 THIS IS THE MISSING PIECE
+    dataHandler.onDataChanged(window.dataSdk.getAll());
+
+    showToast(`Added ${json.cards.length} flashcards`);
   } catch (err) {
     console.error(err);
     showToast("AI generation failed");
-    return false;
   } finally {
     hideAILoading();
   }
 }
+
 
    
 function showAIGenerateModal() {
