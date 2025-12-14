@@ -428,7 +428,7 @@
 
       const cardsHTML = cards.map(card => `
         <div class="p-4 rounded-xl" style="background: ${cardBg}; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative;">
-          <button class="delete-card-btn" data-backend-id="${card.__backendId}" style="position: absolute; top: 0.5rem; right: 0.5rem; color: ${subtitleColor}; font-size: ${fontSize * 1.2}px; background: none; border: none; cursor: pointer; padding: 0.25rem; line-height: 1;">×</button>
+          <button class="delete-card-btn" data-id="${card.id}" style="position: absolute; top: 0.5rem; right: 0.5rem; color: ${subtitleColor}; font-size: ${fontSize * 1.2}px; background: none; border: none; cursor: pointer; padding: 0.25rem; line-height: 1;">×</button>
           <div style="margin-bottom: 0.75rem;">
             <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 600; text-transform: uppercase; margin-bottom: 0.25rem;">Q</p>
             <p style="font-size: ${fontSize}px; color: ${titleColor};">${card.question}</p>
@@ -990,19 +990,21 @@ function importCardsFromJsonForCurrentSet() {
           }
         });
       });
-
-      const deleteCardBtns = document.querySelectorAll('.delete-card-btn');
-      deleteCardBtns.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const backendId = btn.dataset.backendId;
-          const card = allData.find(d => d.__backendId === backendId);
-          
-          btn.disabled = true;
-          btn.innerHTML = '<span class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></span>';
-
-          await window.dataSdk.delete({ id: card.id });
-        });
+     
+     const deleteCardBtns = document.querySelectorAll('.delete-card-btn');
+     deleteCardBtns.forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+       e.stopPropagation();
+       
+       const id = btn.dataset.id;
+       
+       btn.disabled = true;
+       btn.innerHTML =
+        '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span>';
+       await window.dataSdk.delete({ id });
       });
+     });
+
 
       const studySetBtns = document.querySelectorAll('.study-set-btn');
       studySetBtns.forEach(btn => {
