@@ -890,19 +890,26 @@ function importCardsFromJsonForCurrentSet() {
     }
 
 async function generateCardsWithAI(topic, count) {
+ isLoading = true;
+renderApp();
   showToast("Generating cards with AI...");
 
   try {
-    const res = await fetch(AI_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, count })
-    });
+console.log("AI request sent:", { topic, count });
+
+const res = await fetch(AI_API_URL, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ topic, count })
+});
+
 
     if (!res.ok) throw new Error("API error");
 
     const json = await res.json();
     if (!Array.isArray(json.cards)) throw new Error("Invalid response");
+   
+console.log("AI response:", json);
 
     for (const card of json.cards) {
       await window.dataSdk.create({
@@ -920,10 +927,13 @@ async function generateCardsWithAI(topic, count) {
 
     showToast(`Added ${json.cards.length} AI cards`);
   } catch (err) {
-    console.error(err);
-    showToast("Failed to generate cards");
-  }
- renderApp();
+  console.error(err);
+  showToast("Failed to generate cards");
+  throw err; // 🔥 THIS IS THE KEY
+} finally {
+   isLoading = false;
+renderApp();
+}
 }
    
 function showAIGenerateModal() {
@@ -997,6 +1007,8 @@ modal.querySelector("#aiGenerateForm").onsubmit = async e => {
   e.preventDefault();
 
   const btn = modal.querySelector("#submitAIBtn");
+  if (btn.disabled) return;
+
   const text = modal.querySelector("#submitAIText");
   const topic = modal.querySelector("#aiTopicInput").value;
   const count = Number(modal.querySelector("#aiCountInput").value) || 15;
@@ -1006,12 +1018,10 @@ modal.querySelector("#aiGenerateForm").onsubmit = async e => {
 
   try {
     await generateCardsWithAI(topic, count);
-    renderApp();
     modal.remove();
-  } catch (err) {
+  } catch {
     btn.disabled = false;
     text.textContent = "Generate";
-    showToast("AI generation failed");
   }
 };
 }
