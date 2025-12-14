@@ -287,7 +287,23 @@
       const cardBg = config.card_background || defaultConfig.card_background;
 
       const subjectsHTML = subjects.map(subject => {
-        const sets = getSetsForSubject(subject.subject_id);
+      const sets = getSetsForSubject(subject.subject_id);
+       return `
+          <div class="category-card p-6 rounded-2xl" data-subject-id="${subject.subject_id}" style="background: ${cardBg}; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative;">
+            <button class="delete-subject-btn" data-subject-id="${subject.subject_id}" style="position: absolute; top: 0.75rem; right: 0.75rem; color: ${subtitleColor}; font-size: ${fontSize * 1.2}px; background: none; border: none; cursor: pointer; padding: 0.25rem; line-height: 1;">×</button>
+            <div class="flex items-center mb-3">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center mr-4" style="background: linear-gradient(135deg, ${primaryColor}, ${adjustColor(primaryColor, -20)});">
+                <span style="font-size: ${fontSize * 1.5}px;">${subject.subject_icon}</span>
+              </div>
+              <div>
+                <h2 style="font-size: ${fontSize * 1.5}px; font-weight: 600; color: ${titleColor};">${subject.subject_name}</h2>
+                <p style="font-size: ${fontSize * 0.875}px; color: ${subtitleColor};">${sets.length} set${sets.length !== 1 ? 's' : ''}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+     
       return `
         <div class="w-full h-full overflow-auto">
           <div class="min-h-full flex flex-col p-8">
