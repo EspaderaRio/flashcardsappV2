@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcards App</title>
+
+  <script src="tailwindcss.js"></script>
+  <script>
+    // /_sdk/element_sdk.js
+(function () {
+  let config = {};
+
+  window.elementSdk = {
+    init(api) {
+      // Store defaults
+      config = { ...(api?.defaultConfig || {}) };
+
+      // Expose fake edit panel updates if needed
+      window.__elementApi = api;
+    },
+
+    setConfig(newConfig) {
+      config = { ...config, ...newConfig };
+
+      // Notify app if config changes
+      if (window.__elementApi?.onConfigChange) {
+        window.__elementApi.onConfigChange(config);
+      }
+    },
+
+    getConfig() {
+      return { ...config };
+    }
+  };
+})();
+  </script>
+  <script>
+    // /_sdk/data_sdk.js
+(function () {
+  const STORAGE_KEY = "flashcards_data";
+  let handler = null;
+  let data = [];
+
+  function load() {
+    try {
+      data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch {
+      data = [];
+    }
+  }
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function notify() {
+    if (handler && typeof handler.onDataChanged === "function") {
+      handler.onDataChanged([...data]);
+    }
+  }
+
+  window.dataSdk = {
+    async init(h) {
+      handler = h;
+      load();
+      notify();
+      return { isOk: true };
+    },
+
+    async create(item) {
+      data.push(item);
+      save();
+      notify();
+      return { isOk: true };
+    },
+
+    async delete(item) {
+      data = data.filter(d => d.id !== item.id);
+      save();
+      notify();
+      return { isOk: true };
+    },
+
+    async update(updatedItem) {
+      const index = data.findIndex(d => d.id === updatedItem.id);
+      if (index !== -1) {
+        data[index] = updatedItem;
+        save();
+        notify();
+      }
+      return { isOk: true };
+    },
+
+    getAll() {
+      return [...data];
+    }
+  };
+})();
+  </script>
+
+  <style>
+    .card-flip { perspective: 1000px; cursor: pointer; }
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .card-flip.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      border-radius: 0.75rem;
+      text-align: center;
+    }
+    .card-back { transform: rotateY(180deg); }
+  </style>
+</head>
+
+<body class="h-full">
+<div id="app" class="h-full"></div>
+
+<script>
+/* ---------------- CONFIG ---------------- */
+const defaultConfig = {
+  background_color: "#f0f4f8",
+  surface_color: "#ffffff",
+  text_color: "#1e293b",
+  primary_action_color: "#3b82f6",
+  secondary_action_color: "#64748b",
+  app_title: "📚 Flashcards",
+  font_size: 16,
+  font_family: "system-ui"
+};
+
+let config = { ...defaultConfig };
+let allData = [];
+
+/* ---------------- STATE ---------------- */
+let currentView = "subjects";
+let currentSubjectId = null;
+let currentSetId = null;
+
+/* ---------------- INIT ---------------- */
+window.addEventListener("DOMContentLoaded", async () => {
+  await window.dataSdk.init({
+    onDataChanged(data) {
+      allData = data;
+      render();
+    }
+  });
+  render();
+});
+
+/* ---------------- HELPERS ---------------- */
+const id = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+const subjects = () => allData.filter(d => d.type === "subject");
+const sets = sid => allData.filter(d => d.type === "set" && d.subject_id === sid);
+const cards = setid => allData.filter(d => d.type === "card" && d.set_id === setid);
+
+/* ---------------- CRUD ---------------- */
+async function addSubject() {
+  const name = prompt("Subject name:");
+  if (!name) return;
+  await dataSdk.create({ id: id(), type: "subject", name });
+}
+
+async function addSet(subjectId) {
+  const name = prompt("Set / Topic name:");
+  if (!name) return;
+  await dataSdk.create({ id: id(), type: "set", subject_id: subjectId, name });
+}
+
+async function addCard(setId) {
+  const front = prompt("Front:");
+  const back = prompt("Back:");
+  if (!front || !back) return;
+  await dataSdk.create({ id: id(), type: "card", set_id: setId, front, back });
+}
+
+async function remove(item) {
+  await dataSdk.delete(item);
+}
+
+/* ---------------- RENDER ---------------- */
+function render() {
+  if (currentView === "subjects") renderSubjects();
+  if (currentView === "sets") renderSets();
+  if (currentView === "cards") renderCards();
+}
+
+/* ---------- SUBJECTS ---------- */
+function renderSubjects() {
+  app.innerHTML = `
+    <div style="padding:2rem; background:${config.background_color}; min-height:100%">
+      <header class="flex justify-between mb-6">
+        <h1 class="text-3xl font-bold">${config.app_title}</h1>
+        <button onclick="addSubject()" class="px-4 py-2 bg-blue-500 text-white rounded">
+          + Subject
+        </button>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        ${subjects().map(s => `
+          <div class="p-4 bg-white rounded shadow cursor-pointer"
+            onclick="currentSubjectId='${s.id}'; currentView='sets'; render()">
+            <h3 class="font-semibold">${s.name}</h3>
+            <p class="text-sm text-gray-500">${sets(s.id).length} sets</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- SETS ---------- */
+function renderSets() {
+  const subject = subjects().find(s => s.id === currentSubjectId);
+  const subjectSets = sets(currentSubjectId);
+
+  app.innerHTML = `
+    <div style="padding:2rem; background:${config.background_color}; min-height:100%">
+      <button onclick="currentView='subjects'; render()" class="mb-4">← Back</button>
+
+      <header class="flex justify-between mb-6">
+        <h2 class="text-2xl font-bold">${subject.name}</h2>
+        <button onclick="addSet('${currentSubjectId}')" class="px-4 py-2 bg-blue-500 text-white rounded">
+          + Set
+        </button>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        ${subjectSets.map(set => `
+          <div class="p-4 bg-white rounded shadow cursor-pointer"
+            onclick="currentSetId='${set.id}'; currentView='cards'; render()">
+            <h3 class="font-semibold">${set.name}</h3>
+            <p class="text-sm text-gray-500">${cards(set.id).length} cards</p>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- CARDS ---------- */
+function renderCards() {
+  const set = allData.find(d => d.id === currentSetId);
+  const setCards = cards(currentSetId);
+
+  app.innerHTML = `
+    <div style="padding:2rem; background:${config.background_color}; min-height:100%">
+      <button onclick="currentView='sets'; render()" class="mb-4">← Back</button>
+
+      <header class="flex justify-between mb-6">
+        <h2 class="text-2xl font-bold">${set.name}</h2>
+        <button onclick="addCard('${currentSetId}')" class="px-4 py-2 bg-blue-500 text-white rounded">
+          + Card
+        </button>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        ${setCards.map(c => `
+          <div>
+            <div class="card-flip h-48" onclick="this.classList.toggle('flipped')">
+              <div class="card-inner">
+                <div class="card-front bg-white shadow">${c.front}</div>
+                <div class="card-back bg-blue-500 text-white">${c.back}</div>
+              </div>
+            </div>
+            <button onclick="remove(allData.find(d=>d.id==='${c.id}'))"
+              class="mt-2 w-full border rounded p-1 text-sm">
+              Delete
+            </button>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
