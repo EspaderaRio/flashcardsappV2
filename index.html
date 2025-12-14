@@ -889,18 +889,7 @@ function importCardsFromJsonForCurrentSet() {
       });
     }
 
-   async function generateCardsWithAI() {
-  if (!currentSet?.set_id) {
-    showToast("No set selected");
-    return;
-  }
-
-  const topic = prompt(
-    "Enter topic for this set:",
-    currentSet.set_name
-  );
-  if (!topic) return;
-
+async function generateCardsWithAI(topic) {
   showToast("Generating cards with AI...");
 
   try {
@@ -910,16 +899,10 @@ function importCardsFromJsonForCurrentSet() {
       body: JSON.stringify({ topic })
     });
 
-    if (!res.ok) {
-      throw new Error("AI request failed");
-    }
+    if (!res.ok) throw new Error();
 
     const json = await res.json();
-
-    if (!Array.isArray(json.cards)) {
-      showToast("Invalid AI response");
-      return;
-    }
+    if (!Array.isArray(json.cards)) throw new Error();
 
     for (const card of json.cards) {
       await window.dataSdk.create({
@@ -932,10 +915,78 @@ function importCardsFromJsonForCurrentSet() {
     }
 
     showToast(`Added ${json.cards.length} AI cards`);
-  } catch (err) {
-    console.error(err);
+  } catch {
     showToast("Failed to generate cards");
   }
+}
+   
+function showAIGenerateModal() {
+  if (!currentSet?.set_id) {
+    showToast("No set selected");
+    return;
+  }
+
+  const fontSize = config.font_size || 16;
+  const titleColor = config.text_color || defaultConfig.text_color;
+  const primaryColor = config.primary_color || defaultConfig.primary_color;
+  const cardBg = config.card_background || defaultConfig.card_background;
+
+  const modal = document.createElement("div");
+  modal.className = "modal-overlay";
+
+  modal.innerHTML = `
+    <div class="modal-content" style="background:${cardBg};padding:2rem;">
+      <h2 style="font-size:${fontSize * 1.8}px;font-weight:600;color:${titleColor};margin-bottom:1rem;">
+        🤖 Generate Flashcards with AI
+      </h2>
+
+      <form id="aiGenerateForm">
+        <div style="margin-bottom:1rem;">
+          <label style="font-size:${fontSize * 0.875}px;font-weight:500;color:${titleColor};">
+            Topic
+          </label>
+          <input
+            id="aiTopicInput"
+            required
+            value="${currentSet.set_name}"
+            style="width:100%;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:${fontSize}px;"
+            placeholder="e.g. Photosynthesis, World War II..."
+          />
+        </div>
+
+        <div style="display:flex;gap:1rem;">
+          <button type="button" id="cancelAIBtn"
+            style="flex:1;padding:0.75rem;border-radius:0.5rem;background:#e2e8f0;">
+            Cancel
+          </button>
+          <button type="submit" id="submitAIBtn"
+            style="flex:1;padding:0.75rem;border-radius:0.5rem;background:${primaryColor};color:white;font-weight:600;">
+            <span id="submitAIText">Generate</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  modal.querySelector("#cancelAIBtn").onclick = () => modal.remove();
+  modal.onclick = e => e.target === modal && modal.remove();
+
+  modal.querySelector("#aiGenerateForm").onsubmit = async e => {
+    e.preventDefault();
+
+    const btn = modal.querySelector("#submitAIBtn");
+    const text = modal.querySelector("#submitAIText");
+    const topic = modal.querySelector("#aiTopicInput").value;
+
+    btn.disabled = true;
+    text.innerHTML = `<span class="spinner"></span>`;
+
+    await generateCardsWithAI(topic);
+
+    modal.remove();
+  };
 }
 
     function showToast(message) {
@@ -1156,7 +1207,7 @@ function importCardsFromJsonForCurrentSet() {
      
      const aiGenerateBtn = document.getElementById("aiGenerateBtn");
      if (aiGenerateBtn) {
-      aiGenerateBtn.addEventListener("click", generateCardsWithAI);
+      aiGenerateBtn.addEventListener("click", showAIGenerateModal);
      }
     }
 
