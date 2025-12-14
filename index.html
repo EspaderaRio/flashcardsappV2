@@ -339,6 +339,12 @@
     }
 
     function renderSetsView() {
+      if (!currentSubject || !currentSubject.subject_id) {
+      currentView = 'subjects';
+      renderApp();
+      return '';
+      }
+
       const sets = getSetsForSubject(currentSubject.subject_id);
       const fontSize = config.font_size || 16;
       const titleColor = config.text_color || defaultConfig.text_color;
