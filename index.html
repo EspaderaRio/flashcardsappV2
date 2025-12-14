@@ -86,7 +86,7 @@
      save();
      if (!silent) notify();
      return { isOk: true };
-    }
+    },
 
     async update(updatedItem) {
       if (!updatedItem?.id) return { isOk: false };
