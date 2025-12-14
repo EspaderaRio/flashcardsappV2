@@ -482,15 +482,24 @@
   ` : ''}
 </div>
 
-              ${cards.length === 0 ? `
-                <div class="text-center py-12" style="color: ${subtitleColor};">
-                  <p style="font-size: ${fontSize * 1.2}px;">No cards yet. Add your first flashcard!</p>
-                </div>
-              ` : `
-                <div class="grid grid-cols-1 gap-4">
-                  ${cardsHTML}
-                </div>
-              `}
+${isLoading ? `
+  <div class="p-4 rounded-xl text-center mb-4"
+    style="background:#0f172a;color:white;font-weight:600;">
+    🤖 AI is generating flashcards…
+  </div>
+` : ""}
+
+${cards.length === 0 ? `
+  <div class="text-center py-12" style="color: ${subtitleColor};">
+    <p style="font-size: ${fontSize * 1.2}px;">
+      No cards yet. Add your first flashcard!
+    </p>
+  </div>
+` : `
+  <div class="grid grid-cols-1 gap-4">
+    ${cardsHTML}
+  </div>
+`}
             </div>
           </div>
         </div>
