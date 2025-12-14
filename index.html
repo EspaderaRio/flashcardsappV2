@@ -923,6 +923,7 @@ async function generateCardsWithAI(topic, count) {
     console.error(err);
     showToast("Failed to generate cards");
   }
+ renderApp();
 }
    
 function showAIGenerateModal() {
@@ -992,22 +993,27 @@ function showAIGenerateModal() {
   modal.querySelector("#cancelAIBtn").onclick = () => modal.remove();
   modal.onclick = e => e.target === modal && modal.remove();
 
-  modal.querySelector("#aiGenerateForm").onsubmit = async e => {
-    e.preventDefault();
+modal.querySelector("#aiGenerateForm").onsubmit = async e => {
+  e.preventDefault();
 
-   
-    const btn = modal.querySelector("#submitAIBtn");
-    const text = modal.querySelector("#submitAIText");
-    const topic = modal.querySelector("#aiTopicInput").value;
-const count = Number(modal.querySelector("#aiCountInput").value) || 15;
+  const btn = modal.querySelector("#submitAIBtn");
+  const text = modal.querySelector("#submitAIText");
+  const topic = modal.querySelector("#aiTopicInput").value;
+  const count = Number(modal.querySelector("#aiCountInput").value) || 15;
 
-    btn.disabled = true;
-    text.innerHTML = `<span class="spinner"></span>`;
+  btn.disabled = true;
+  text.innerHTML = `<span class="spinner"></span>`;
 
+  try {
     await generateCardsWithAI(topic, count);
-
+    renderApp();
     modal.remove();
-  };
+  } catch (err) {
+    btn.disabled = false;
+    text.textContent = "Generate";
+    showToast("AI generation failed");
+  }
+};
 }
 
     function showToast(message) {
