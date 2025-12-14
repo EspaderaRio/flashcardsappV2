@@ -913,6 +913,7 @@ async function generateCardsWithAI(topic, count) {
     });
 
     const json = await res.json();
+
     if (!Array.isArray(json.cards)) {
       throw new Error("Invalid AI response");
     }
@@ -920,38 +921,40 @@ async function generateCardsWithAI(topic, count) {
     for (const card of json.cards) {
       await window.dataSdk.create({
         type: "card",
-        subject_id: currentSubject.subject_id,
-        subject_name: currentSubject.subject_name,
-        subject_icon: currentSubject.subject_icon,
+        subject_id: currentSubject?.subject_id || "",
+        subject_name: currentSubject?.subject_name || "",
+        subject_icon: currentSubject?.subject_icon || "",
         set_id: currentSet.set_id,
-        set_name: currentSet.set_name,
+        set_name: currentSet.set_name || "",
         question: card.question,
         answer: card.answer,
         created_at: new Date().toISOString()
       });
     }
 
-    // force UI refresh
-    dataHandler.onDataChanged(window.dataSdk.getAll());
-showToast(`Added ${json.cards.length} cards`);
-await loadAllData();
-renderApp();
-   
-    return true; // ✅ THIS WAS MISSING
+    // 🔥 SINGLE, CORRECT UI UPDATE
+    await loadAllData();
+    openSet(currentSet.set_id);
+
+    showToast(`Added ${json.cards.length} cards`);
+    return true;
+
   } catch (err) {
     console.error(err);
     showToast("AI generation failed");
-    return false; // ✅ ALSO IMPORTANT
+    return false;
   } finally {
     hideAILoading();
   }
 }
+   
 async function loadAllData() {
   const result = await window.dataSdk.list();
   if (result.isOk) {
     allData = result.value;
   }
 }
+
 
 
    
@@ -965,8 +968,6 @@ function showAIGenerateModal() {
   const titleColor = config.text_color || defaultConfig.text_color;
   const primaryColor = config.primary_color || defaultConfig.primary_color;
   const cardBg = config.card_background || defaultConfig.card_background;
-
-  let isGenerating = false;
 
   const modal = document.createElement("div");
   modal.className = "modal-overlay";
@@ -987,23 +988,22 @@ function showAIGenerateModal() {
             required
             value="${currentSet.set_name}"
             style="width:100%;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:${fontSize}px;"
-            placeholder="e.g. Photosynthesis, World War II..."
           />
         </div>
-        <div style="margin-bottom:1rem;">
-  <label style="font-size:${fontSize * 0.875}px;font-weight:500;color:${titleColor};">
-    Number of cards
-  </label>
-  <input
-    id="aiCountInput"
-    type="number"
-    min="1"
-    max="50"
-    value="15"
-    style="width:100%;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:${fontSize}px;"
-  />
-</div>
 
+        <div style="margin-bottom:1rem;">
+          <label style="font-size:${fontSize * 0.875}px;font-weight:500;color:${titleColor};">
+            Number of cards
+          </label>
+          <input
+            id="aiCountInput"
+            type="number"
+            min="1"
+            max="50"
+            value="15"
+            style="width:100%;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:${fontSize}px;"
+          />
+        </div>
 
         <div style="display:flex;gap:1rem;">
           <button type="button" id="cancelAIBtn"
@@ -1024,32 +1024,27 @@ function showAIGenerateModal() {
   modal.querySelector("#cancelAIBtn").onclick = () => modal.remove();
   modal.onclick = e => e.target === modal && modal.remove();
 
-  modal.querySelector("#aiGenerateForm").addEventListener("submit", async e => {
-  e.preventDefault();
+  modal.querySelector("#aiGenerateForm").onsubmit = async e => {
+    e.preventDefault();
 
-  if (isGenerating) return;
+    const btn = modal.querySelector("#submitAIBtn");
+    const text = modal.querySelector("#submitAIText");
 
-  const btn = modal.querySelector("#submitAIBtn");
-  const text = modal.querySelector("#submitAIText");
-  const topic = modal.querySelector("#aiTopicInput").value;
-  const count = Number(modal.querySelector("#aiCountInput").value) || 15;
+    btn.disabled = true;
+    text.innerHTML = `<span class="spinner"></span>`;
 
-  isGenerating = true;
-  text.innerHTML = `<span class="spinner"></span>`;
+    const topic = modal.querySelector("#aiTopicInput").value;
+    const count = Number(modal.querySelector("#aiCountInput").value) || 15;
 
-  try {
     const success = await generateCardsWithAI(topic, count);
+
     if (success) {
       modal.remove();
     } else {
-      isGenerating = false;
+      btn.disabled = false;
       text.textContent = "Generate";
     }
-  } catch {
-    isGenerating = false;
-    text.textContent = "Generate";
-  }
-});
+  };
 }
 
 let aiLoadingEl = null;
@@ -1067,11 +1062,11 @@ function showAILoading() {
   document.getElementById("app")?.prepend(aiLoadingEl);
 }
 
-
 function hideAILoading() {
   aiLoadingEl?.remove();
   aiLoadingEl = null;
 }
+
 
 
     function showToast(message) {
