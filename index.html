@@ -219,6 +219,7 @@
  <body class="h-full">
   <div id="app" class="h-full w-full"></div>
   <script>
+   
    const AI_API_URL =
   "https://flashcards-ai-backend.onrender.com/api/generate-cards";
 
@@ -482,12 +483,7 @@
   ` : ''}
 </div>
 
-${isLoading ? `
-  <div class="p-4 rounded-xl text-center mb-4"
-    style="background:#0f172a;color:white;font-weight:600;">
-    🤖 AI is generating flashcards…
-  </div>
-` : ""}
+
 
 ${cards.length === 0 ? `
   <div class="text-center py-12" style="color: ${subtitleColor};">
@@ -899,51 +895,51 @@ function importCardsFromJsonForCurrentSet() {
     }
 
 async function generateCardsWithAI(topic, count) {
- isLoading = true;
-renderApp();
-  showToast("Generating cards with AI...");
+  if (!currentSet?.set_id) {
+    showToast("No set selected");
+    return;
+  }
+
+  showAILoading();
 
   try {
-console.log("AI request sent:", { topic, count });
-
-const res = await fetch(AI_API_URL, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ topic, count })
-});
-
-
-    if (!res.ok) throw new Error("API error");
+    const res = await fetch(
+      "https://flashcards-ai-backend.onrender.com/api/generate-cards",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+body: JSON.stringify({
+  topic,
+  count
+})
+      }
+    );
 
     const json = await res.json();
-    if (!Array.isArray(json.cards)) throw new Error("Invalid response");
-   
-console.log("AI response:", json);
+
+    if (!Array.isArray(json.cards)) {
+      throw new Error("Invalid AI response");
+    }
 
     for (const card of json.cards) {
-      await window.dataSdk.create({
+      await dataSdk.create({
         type: "card",
-        subject_id: currentSubject?.subject_id || "",
-        subject_name: "",
-        subject_icon: "",
         set_id: currentSet.set_id,
-        set_name: currentSet.set_name || "",
         question: card.question,
         answer: card.answer,
         created_at: new Date().toISOString()
       });
     }
 
-    showToast(`Added ${json.cards.length} AI cards`);
+    showToast(`Added ${json.cards.length} cards`);
   } catch (err) {
-  console.error(err);
-  showToast("Failed to generate cards");
-  throw err; // 🔥 THIS IS THE KEY
-} finally {
-   isLoading = false;
-renderApp();
+    console.error(err);
+    showToast("AI generation failed");
+  } finally {
+    hideAILoading();
+  }
 }
-}
+
    
 function showAIGenerateModal() {
   if (!currentSet?.set_id) {
@@ -1034,6 +1030,28 @@ modal.querySelector("#aiGenerateForm").onsubmit = async e => {
   }
 };
 }
+
+let aiLoadingEl = null;
+
+function showAILoading() {
+  if (aiLoadingEl) return;
+
+  aiLoadingEl = document.createElement("div");
+  aiLoadingEl.className = "p-4 rounded-xl text-center mb-4";
+  aiLoadingEl.style.background = "#0f172a";
+  aiLoadingEl.style.color = "white";
+  aiLoadingEl.style.fontWeight = "600";
+  aiLoadingEl.textContent = "🤖 AI is generating flashcards…";
+
+  document.getElementById("app")?.prepend(aiLoadingEl);
+}
+
+
+function hideAILoading() {
+  aiLoadingEl?.remove();
+  aiLoadingEl = null;
+}
+
 
     function showToast(message) {
       const fontSize = config.font_size || 16;
