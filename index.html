@@ -900,7 +900,7 @@ function importCardsFromJsonForCurrentSet() {
 async function generateCardsWithAI(topic, count) {
   if (!currentSet?.set_id) {
     showToast("No set selected");
-    return;
+    return false;
   }
 
   showAILoading();
@@ -939,9 +939,11 @@ body: JSON.stringify({
     }
 showToast(`Added ${json.cards.length} cards`);
    renderApp(); // 🔥 THIS IS REQUIRED
+   return true;
   } catch (err) {
     console.error(err);
     showToast("AI generation failed");
+    return false;
   } finally {
     hideAILoading();
   }
@@ -1029,8 +1031,13 @@ modal.querySelector("#aiGenerateForm").onsubmit = async e => {
   text.innerHTML = `<span class="spinner"></span>`;
 
   try {
-    await generateCardsWithAI(topic, count);
-    modal.remove();
+    const success = await generateCardsWithAI(topic, count);
+    if (success) {
+      modal.remove();
+    } else {
+      btn.disabled = false;
+      text.textContent = "Generate";
+    }
   } catch {
     btn.disabled = false;
     text.textContent = "Generate";
