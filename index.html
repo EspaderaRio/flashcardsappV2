@@ -33,8 +33,7 @@
   };
 })();
   </script>
-  <script>
-    // /_sdk/data_sdk.js
+<script>
 (function () {
   const STORAGE_KEY = "flashcards_data";
   let handler = null;
@@ -58,6 +57,10 @@
     }
   }
 
+  function generateId() {
+    return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+  }
+
   window.dataSdk = {
     async init(h) {
       handler = h;
@@ -67,20 +70,27 @@
     },
 
     async create(item) {
-      data.push(item);
+      const newItem = {
+        ...item,
+        id: generateId()
+      };
+      data.push(newItem);
       save();
       notify();
-      return { isOk: true };
+      return { isOk: true, item: newItem };
     },
 
-    async delete(item) {
-      data = data.filter(d => d.id !== item.id);
+    async delete({ id }) {
+      if (!id) return { isOk: false };
+      data = data.filter(d => d.id !== id);
       save();
       notify();
       return { isOk: true };
     },
 
     async update(updatedItem) {
+      if (!updatedItem?.id) return { isOk: false };
+
       const index = data.findIndex(d => d.id === updatedItem.id);
       if (index !== -1) {
         data[index] = updatedItem;
@@ -95,8 +105,7 @@
     }
   };
 })();
-  </script>
-
+</script>
   <script src="tailwindcss.js"></script>
   <style>
     body {
@@ -953,7 +962,7 @@ function importCardsFromJsonForCurrentSet() {
           );
 
           for (const item of itemsToDelete) {
-            await window.dataSdk.delete(item);
+            await window.dataSdk.delete({ id: item.id });
           }
           if (currentSubject?.subject_id === subjectId) {
               currentSubject = null;
@@ -977,7 +986,7 @@ function importCardsFromJsonForCurrentSet() {
           );
 
           for (const item of itemsToDelete) {
-            await window.dataSdk.delete(item);
+            await window.dataSdk.delete({ id: item.id });
           }
         });
       });
@@ -991,7 +1000,7 @@ function importCardsFromJsonForCurrentSet() {
           btn.disabled = true;
           btn.innerHTML = '<span class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></span>';
 
-          await window.dataSdk.delete(card);
+          await window.dataSdk.delete({ id: card.id });
         });
       });
 
