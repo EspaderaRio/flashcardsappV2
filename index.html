@@ -80,13 +80,13 @@
       return { isOk: true, item: newItem };
     },
 
-    async delete({ id }) {
-      if (!id) return { isOk: false };
-      data = data.filter(d => d.id !== id);
-      save();
-      notify();
-      return { isOk: true };
-    },
+    async delete({ id }, silent = false) {
+     if (!id) return { isOk: false };
+     data = data.filter(d => d.id !== id);
+     save();
+     if (!silent) notify();
+     return { isOk: true };
+    }
 
     async update(updatedItem) {
       if (!updatedItem?.id) return { isOk: false };
@@ -960,10 +960,13 @@ function importCardsFromJsonForCurrentSet() {
             (d.type === 'set' && d.subject_id === subjectId) ||
             (d.type === 'card' && allData.some(s => s.type === 'set' && s.set_id === d.set_id && s.subject_id === subjectId))
           );
+         
+         for (const item of itemsToDelete) {
+          await window.dataSdk.delete({ id: item.id }, true);
+         }
+         window.dataSdk.getAll(); // optional
+         dataHandler.onDataChanged(window.dataSdk.getAll());
 
-          for (const item of itemsToDelete) {
-            await window.dataSdk.delete({ id: item.id });
-          }
           if (currentSubject?.subject_id === subjectId) {
               currentSubject = null;
               currentView = 'subjects';
