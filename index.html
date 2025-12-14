@@ -918,6 +918,10 @@ body: JSON.stringify({
       }
     );
 
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
     const json = await res.json();
 
     if (!Array.isArray(json.cards)) {
@@ -1017,7 +1021,7 @@ function showAIGenerateModal() {
   modal.querySelector("#cancelAIBtn").onclick = () => modal.remove();
   modal.onclick = e => e.target === modal && modal.remove();
 
-modal.querySelector("#aiGenerateForm").onsubmit = async e => {
+  modal.querySelector("#aiGenerateForm").addEventListener("submit", async e => {
   e.preventDefault();
 
   const btn = modal.querySelector("#submitAIBtn");
@@ -1042,7 +1046,7 @@ modal.querySelector("#aiGenerateForm").onsubmit = async e => {
     btn.disabled = false;
     text.textContent = "Generate";
   }
-};
+});
 }
 
 let aiLoadingEl = null;
