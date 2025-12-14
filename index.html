@@ -921,17 +921,22 @@ body: JSON.stringify({
       throw new Error("Invalid AI response");
     }
 
-    for (const card of json.cards) {
-      await dataSdk.create({
-        type: "card",
-        set_id: currentSet.set_id,
-        question: card.question,
-        answer: card.answer,
-        created_at: new Date().toISOString()
-      });
-    }
+for (const card of json.cards) {
+  await dataSdk.create({
+  type: "card",
+  subject_id: currentSet.subject_id || "",
+  subject_name: currentSet.subject_name || "",
+  subject_icon: currentSet.subject_icon || "",
+  set_id: currentSet.set_id,
+  set_name: currentSet.set_name || "",
+  question: card.question,
+  answer: card.answer,
+  created_at: new Date().toISOString()
+});
+}
 
-    showToast(`Added ${json.cards.length} cards`);
+renderApp(); // 🔥 THIS IS REQUIRED
+showToast(`Added ${json.cards.length} cards`);
   } catch (err) {
     console.error(err);
     showToast("AI generation failed");
