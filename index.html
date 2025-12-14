@@ -933,8 +933,10 @@ async function generateCardsWithAI(topic, count) {
 
     // force UI refresh
     dataHandler.onDataChanged(window.dataSdk.getAll());
-
-    showToast(`Added ${json.cards.length} flashcards`);
+showToast(`Added ${json.cards.length} cards`);
+await loadAllData();
+renderApp();
+   
     return true; // ✅ THIS WAS MISSING
   } catch (err) {
     console.error(err);
@@ -942,6 +944,12 @@ async function generateCardsWithAI(topic, count) {
     return false; // ✅ ALSO IMPORTANT
   } finally {
     hideAILoading();
+  }
+}
+async function loadAllData() {
+  const result = await window.dataSdk.list();
+  if (result.isOk) {
+    allData = result.value;
   }
 }
 
