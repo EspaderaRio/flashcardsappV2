@@ -965,6 +965,8 @@ function showAIGenerateModal() {
   const primaryColor = config.primary_color || defaultConfig.primary_color;
   const cardBg = config.card_background || defaultConfig.card_background;
 
+  let isGenerating = false;
+
   const modal = document.createElement("div");
   modal.className = "modal-overlay";
 
@@ -1024,14 +1026,14 @@ function showAIGenerateModal() {
   modal.querySelector("#aiGenerateForm").addEventListener("submit", async e => {
   e.preventDefault();
 
-  const btn = modal.querySelector("#submitAIBtn");
-  if (btn.disabled) return;
+  if (isGenerating) return;
 
+  const btn = modal.querySelector("#submitAIBtn");
   const text = modal.querySelector("#submitAIText");
   const topic = modal.querySelector("#aiTopicInput").value;
   const count = Number(modal.querySelector("#aiCountInput").value) || 15;
 
-  btn.disabled = true;
+  isGenerating = true;
   text.innerHTML = `<span class="spinner"></span>`;
 
   try {
@@ -1039,11 +1041,11 @@ function showAIGenerateModal() {
     if (success) {
       modal.remove();
     } else {
-      btn.disabled = false;
+      isGenerating = false;
       text.textContent = "Generate";
     }
   } catch {
-    btn.disabled = false;
+    isGenerating = false;
     text.textContent = "Generate";
   }
 });
