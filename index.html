@@ -202,14 +202,48 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .loading {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 1000;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
     .spinner {
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid white;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
       border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 0.8s linear infinite;
-      display: inline-block;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 12px;
     }
 
     @keyframes spin {
@@ -900,56 +934,62 @@ function importCardsFromJsonForCurrentSet() {
       });
     }
 
-async function generateCardsWithAI(topic, count) {
-  if (!currentSet?.set_id) {
-    showToast("No set selected");
-    return false;
-  }
+    async function generateCardsWithAI(topic, count) {
+      if (!currentSet?.set_id) {
+        showToast("No set selected");
+        return false;
+      }
 
-  showAILoading();
+      showAILoading();
 
-  try {
-    const res = await fetch(AI_API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ topic, count })
-    });
+      try {
+        const res = await fetch(AI_API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ topic, count })
+        });
 
-    const json = await res.json();
+        if (!res.ok) {
+          throw new Error(`API request failed with status ${res.status}`);
+        }
 
-    if (!Array.isArray(json.cards)) {
-      throw new Error("Invalid AI response");
+        const json = await res.json();
+
+        if (!Array.isArray(json.cards)) {
+          throw new Error("Invalid AI response");
+        }
+
+        // Create all cards sequentially
+        for (const card of json.cards) {
+          const result = await window.dataSdk.create({
+            type: "card",
+            subject_id: currentSubject?.subject_id || "",
+            subject_name: currentSubject?.subject_name || "",
+            subject_icon: currentSubject?.subject_icon || "",
+            set_id: currentSet.set_id,
+            set_name: currentSet.set_name || "",
+            question: card.question,
+            answer: card.answer,
+            created_at: new Date().toISOString()
+          });
+
+          if (result.isError) {
+            throw new Error("Failed to create card");
+          }
+        }
+
+        // UI update happens in onDataChanged when data changes are detected
+        hideAILoading();
+        showToast(`Successfully generated ${json.cards.length} cards`);
+        return true;
+
+      } catch (error) {
+        hideAILoading();
+        showToast("Failed to generate cards. Please try again.");
+        console.error("AI generation error:", error);
+        return false;
+      }
     }
-
-    for (const card of json.cards) {
-      await window.dataSdk.create({
-        type: "card",
-        subject_id: currentSubject?.subject_id || "",
-        subject_name: currentSubject?.subject_name || "",
-        subject_icon: currentSubject?.subject_icon || "",
-        set_id: currentSet.set_id,
-        set_name: currentSet.set_name || "",
-        question: card.question,
-        answer: card.answer,
-        created_at: new Date().toISOString()
-      });
-    }
-
-    // 🔥 SINGLE, CORRECT UI UPDATE
-    await loadAllData();
-    openSet(currentSet.set_id);
-
-    showToast(`Added ${json.cards.length} cards`);
-    return true;
-
-  } catch (err) {
-    console.error(err);
-    showToast("AI generation failed");
-    return false;
-  } finally {
-    hideAILoading();
-  }
-}
    
 async function loadAllData() {
   const result = await window.dataSdk.list();
@@ -958,144 +998,61 @@ async function loadAllData() {
   }
 }
 
-
-
-   
-function showAIGenerateModal() {
-  if (!currentSet?.set_id) {
-    showToast("No set selected");
-    return;
-  }
-
-  const fontSize = config.font_size || 16;
-  const titleColor = config.text_color || defaultConfig.text_color;
-  const primaryColor = config.primary_color || defaultConfig.primary_color;
-  const cardBg = config.card_background || defaultConfig.card_background;
-
-  const modal = document.createElement("div");
-  modal.className = "modal-overlay";
-
-  modal.innerHTML = `
-    <div class="modal-content" style="background:${cardBg};padding:2rem;">
-      <h2 style="font-size:${fontSize * 1.8}px;font-weight:600;color:${titleColor};margin-bottom:1rem;">
-        🤖 Generate Flashcards with AI
-      </h2>
-
-      <form id="aiGenerateForm">
-        <div style="margin-bottom:1rem;">
-          <label style="font-size:${fontSize * 0.875}px;font-weight:500;color:${titleColor};">
-            Topic
-          </label>
-          <input
-            id="aiTopicInput"
-            required
-            value="${currentSet.set_name}"
-            style="width:100%;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:${fontSize}px;"
-          />
-        </div>
-
-        <div style="margin-bottom:1rem;">
-          <label style="font-size:${fontSize * 0.875}px;font-weight:500;color:${titleColor};">
-            Number of cards
-          </label>
-          <input
-            id="aiCountInput"
-            type="number"
-            min="1"
-            max="50"
-            value="15"
-            style="width:100%;padding:0.75rem;border:2px solid #e2e8f0;border-radius:0.5rem;font-size:${fontSize}px;"
-          />
-        </div>
-
-        <div style="display:flex;gap:1rem;">
-          <button type="button" id="cancelAIBtn"
-            style="flex:1;padding:0.75rem;border-radius:0.5rem;background:#e2e8f0;">
-            Cancel
-          </button>
-          <button type="submit" id="submitAIBtn"
-            style="flex:1;padding:0.75rem;border-radius:0.5rem;background:${primaryColor};color:white;font-weight:600;">
-            <span id="submitAIText">Generate</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-
-  modal.querySelector("#cancelAIBtn").onclick = () => modal.remove();
-  modal.onclick = e => e.target === modal && modal.remove();
-
-  modal.querySelector("#aiGenerateForm").onsubmit = async e => {
-    e.preventDefault();
-
-    const btn = modal.querySelector("#submitAIBtn");
-    const text = modal.querySelector("#submitAIText");
-
-    btn.disabled = true;
-    text.innerHTML = `<span class="spinner"></span>`;
-
-    const topic = modal.querySelector("#aiTopicInput").value;
-    const count = Number(modal.querySelector("#aiCountInput").value) || 15;
-
-    const success = await generateCardsWithAI(topic, count);
-
-    if (success) {
-      modal.remove();
-    } else {
-      btn.disabled = false;
-      text.textContent = "Generate";
+    function openSet(setId) {
+      // Placeholder function - implement based on your app's needs
+      console.log("Opening set:", setId);
     }
-  };
-}
 
 let aiLoadingEl = null;
 
-function showAILoading() {
-  if (aiLoadingEl) return;
-
-  aiLoadingEl = document.createElement("div");
-  aiLoadingEl.className = "p-4 rounded-xl text-center mb-4";
-  aiLoadingEl.style.background = "#0f172a";
-  aiLoadingEl.style.color = "white";
-  aiLoadingEl.style.fontWeight = "600";
-  aiLoadingEl.textContent = "🤖 AI is generating flashcards…";
-
-  document.getElementById("app")?.prepend(aiLoadingEl);
-}
-
-function hideAILoading() {
-  aiLoadingEl?.remove();
-  aiLoadingEl = null;
-}
-
-
-
-    function showToast(message) {
-      const fontSize = config.font_size || 16;
-      const toast = document.createElement('div');
-      toast.style.cssText = `
-        position: fixed;
-        top: 2rem;
-        right: 2rem;
-        background: #1e293b;
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 0.5rem;
-        font-size: ${fontSize}px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        z-index: 2000;
-        animation: slideIn 0.3s ease-out;
-      `;
-      toast.textContent = message;
-      document.body.appendChild(toast);
-
-      setTimeout(() => {
-        toast.style.animation = 'fadeIn 0.3s ease-out reverse';
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+    function showAILoading() {
+      document.getElementById('aiLoading').classList.add('show');
     }
+
+    function hideAILoading() {
+      document.getElementById('aiLoading').classList.remove('show');
+    }
+
+
+
+   function showToast(message) {
+  const fontSize = config.font_size || 16;
+
+  // Try to reuse existing toast
+  let toast = document.getElementById('toast');
+
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    document.body.appendChild(toast);
+  }
+
+  toast.textContent = message;
+
+  toast.style.cssText = `
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: #1e293b;
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: ${fontSize}px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 2000;
+    opacity: 0;
+  `;
+
+  // Show animation
+  toast.classList.remove('show');
+  void toast.offsetWidth; // force reflow
+  toast.classList.add('show');
+
+  // Auto-hide
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
+}
 
     function attachEventListeners() {
       const addSubjectBtn = document.getElementById('addSubjectBtn');
@@ -1287,11 +1244,6 @@ function hideAILoading() {
           renderApp();
         });
       }
-     
-     const aiGenerateBtn = document.getElementById("aiGenerateBtn");
-     if (aiGenerateBtn) {
-      aiGenerateBtn.addEventListener("click", showAIGenerateModal);
-     }
     }
 
     function adjustColor(color, amount) {
