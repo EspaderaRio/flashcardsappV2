@@ -202,7 +202,7 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
-    .toast {
+    #toast {
       position: fixed;
       bottom: 20px;
       left: 50%;
@@ -215,7 +215,7 @@
       z-index: 1000;
     }
 
-    .toast.show {
+    #toast.show {
       display: block;
     }
 
@@ -992,16 +992,8 @@ function importCardsFromJsonForCurrentSet() {
     }
    
 async function loadAllData() {
-  const result = await window.dataSdk.list();
-  if (result.isOk) {
-    allData = result.value;
-  }
+  allData = window.dataSdk.getAll();
 }
-
-    function openSet(setId) {
-      // Placeholder function - implement based on your app's needs
-      console.log("Opening set:", setId);
-    }
 
 let aiLoadingEl = null;
 
@@ -1117,8 +1109,7 @@ let aiLoadingEl = null;
          for (const item of itemsToDelete) {
           await window.dataSdk.delete({ id: item.id }, true);
          }
-         window.dataSdk.getAll(); // optional
-         dataHandler.onDataChanged(window.dataSdk.getAll());
+         window.dataSdk.init(dataHandler); // reload + notify cleanly
 
           if (currentSubject?.subject_id === subjectId) {
               currentSubject = null;
@@ -1244,6 +1235,16 @@ let aiLoadingEl = null;
           renderApp();
         });
       }
+     const aiGenerateBtn = document.getElementById('aiGenerateBtn');
+if (aiGenerateBtn) {
+  aiGenerateBtn.addEventListener('click', async () => {
+    const topic = prompt("Enter topic for flashcards:");
+    if (!topic) return;
+
+    const count = Number(prompt("How many cards?", "5")) || 5;
+    await generateCardsWithAI(topic, count);
+  });
+}
     }
 
     function adjustColor(color, amount) {
@@ -1351,5 +1352,9 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+  <div id="aiLoading" class="loading">
+  <div class="spinner"></div>
+  <p>Generating cards with AI…</p>
+</div>
  </body>
  </html>
