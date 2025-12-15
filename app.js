@@ -238,7 +238,7 @@
                 <div style="width: 80px;"></div>
               </div>
 
-<div class="mb-6 flex gap-3 relative z-10">
+<div class="mb-6 flex gap-3 relative z-10 cards-actions">
   <button id="addCardBtn" class="flex-1 py-4 rounded-xl transition-all font-semibold"
     style="background: ${primaryColor}; color: white; font-size: ${fontSize * 1.1}px;">
     + Add Card
