@@ -202,22 +202,21 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     }
 
-    #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 8px;
-      display: none;
-      z-index: 1000;
-    }
+#toast {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+ z-index: 1000;
+}
 
-    #toast.show {
-      display: block;
-    }
+#toast.show {
+  opacity: 1;
+  transform: translateX(0);
+}
 
     .loading {
       position: fixed;
