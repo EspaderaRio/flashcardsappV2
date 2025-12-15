@@ -1,10 +1,13 @@
-const CACHE_NAME = "flashcards-v1";
+const CACHE_NAME = "flashcards-v2";
 const urlsToCache = [
   "./",
   "./index.html",
+"./app.js", 
+"./styles.css", 
   "./manifest.json",
   "./sw.js", 
-"./tailwindcss.js"
+"./tailwindcss.js", 
+"./icons/icon-512.png"
 ];
 
 self.addEventListener("install", (event) => {
