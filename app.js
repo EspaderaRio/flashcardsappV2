@@ -72,7 +72,7 @@
 
     function renderSubjectsView() {
       const subjects = getSubjects();
-      const fontSize = config.font_size || 10;
+      const fontSize = config.font_size || 12;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -138,7 +138,7 @@
       }
 
       const sets = getSetsForSubject(currentSubject.subject_id);
-      const fontSize = config.font_size || 10;
+      const fontSize = config.font_size || 12;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -203,7 +203,7 @@
             return '';
       }
       const cards = getCardsForSet(currentSet.set_id);
-      const fontSize = config.font_size || 10;
+      const fontSize = config.font_size || 12;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -356,7 +356,7 @@ ${cards.length === 0 ? `
     }
 
     function showAddSubjectModal() {
-      const fontSize = config.font_size || 10;
+      const fontSize = config.font_size || 12;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -511,7 +511,7 @@ function importCardsFromJsonForCurrentSet() {
 }
 
     function showAddSetModal() {
-      const fontSize = config.font_size || 10;
+      const fontSize = config.font_size || 12;
       const titleColor = config.text_color || defaultConfig.text_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
       const cardBg = config.card_background || defaultConfig.card_background;
@@ -591,7 +591,7 @@ function importCardsFromJsonForCurrentSet() {
     }
 
     function showAddCardModal() {
-      const fontSize = config.font_size || 10;
+      const fontSize = config.font_size || 12;
       const titleColor = config.text_color || defaultConfig.text_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
       const cardBg = config.card_background || defaultConfig.card_background;
@@ -750,7 +750,7 @@ let aiLoadingEl = null;
 
 
    function showToast(message) {
-  const fontSize = config.font_size || 10;
+  const fontSize = config.font_size || 12;
 
   // Try to reuse existing toast
   let toast = document.getElementById('toast');
