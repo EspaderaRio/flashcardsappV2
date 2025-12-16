@@ -186,3 +186,26 @@
 #cancelAIModal {
   color: #ffdbdb;
 }
+.quiz-option:hover {
+  transform: translateY(-2px);
+}
+
+.quiz-option:active {
+  transform: scale(0.98);
+}
+
+.fade-in {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
