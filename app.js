@@ -423,8 +423,8 @@ function renderQuizView() {
               <p style="font-size:${fontSize}px;color:${sub};">
                 Question ${quizIndex + 1} / ${quizQuestions.length}
               </p>
-              <p style="font-size:${fontSize}px;color:${primary};font-weight:600;">
-                Score: ${quizScore}
+              <p style="font-size:${fontSize}px; color:${primary}; font-weight:600;">
+              ⭐ Score: ${quizScore}
               </p>
             </div>
           </div>
@@ -489,14 +489,15 @@ function renderQuizResultView() {
         <p style="font-size:${fontSize * 1.2}px;color:${text};margin-bottom:24px;">
           Your score
         </p>
-
-        <div style="
-          font-size:${fontSize * 3}px;
-          font-weight:700;
-          color:${primary};
-          margin-bottom:32px;
+        
+        <div class="quiz-result-score"
+        style="
+        font-size:${fontSize * 3}px;
+        font-weight:700;
+        color:${primary};
+        margin-bottom:32px;
         ">
-          ${quizScore} / ${quizQuestions.length}
+        ${quizScore} / ${quizQuestions.length}
         </div>
 
         <button id="exitQuizBtn"
@@ -1221,21 +1222,42 @@ if (aiGenerateBtn) {
 }
        // QUIZ option click handlers
 if (currentView === 'quiz') {
-  document.querySelectorAll('.quiz-option').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const selected = btn.dataset.answer;
-      const correct = quizQuestions[quizIndex].correct;
+document.querySelectorAll(".quiz-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const selected = btn.dataset.answer;
+    const correct = quizQuestions[quizIndex].correct;
 
-      if (selected === correct) quizScore++;
+    // Disable all options
+    document.querySelectorAll(".quiz-option").forEach(b => {
+      b.classList.add("disabled");
+    });
 
+    // Mark answers
+    if (selected === correct) {
+      btn.classList.add("correct");
+      quizScore++;
+    } else {
+      btn.classList.add("wrong");
+
+      document.querySelectorAll(".quiz-option").forEach(b => {
+        if (b.dataset.answer === correct) {
+          b.classList.add("correct");
+        }
+      });
+    }
+
+    // Next question delay
+    setTimeout(() => {
       quizIndex++;
 
-if (quizIndex >= quizQuestions.length) {
-  currentView = 'quiz-result';
-}
+      if (quizIndex >= quizQuestions.length) {
+        currentView = "quiz-result";
+      }
+
       renderApp();
-    });
+    }, 800);
   });
+});
 }
 const exitQuizBtn = document.getElementById('exitQuizBtn');
 if (exitQuizBtn) {
