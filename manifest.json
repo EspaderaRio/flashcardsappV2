@@ -1,11 +1,11 @@
 {
-  "name": "FlashcardsAppV2",
+  "name": "Flashcards Study",
   "short_name": "Flashcards",
-  "description": "A flashcards app to import and review cards.",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4a90e2",
+  "background_color": "#f0f4f8",
+  "theme_color": "#2563eb",
+  "description": "Study flashcards offline",
   "icons": [
     {
       "src": "icons/icon-192.png",
