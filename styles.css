@@ -72,7 +72,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(15, 23, 42, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -140,3 +140,49 @@
 .icon.md { width: 20px; height: 20px; }
 .icon.lg { width: 28px; height: 28px; }
 
+
+/* ===== MODAL ===== */
+.modal {
+  background: rgba(15, 23, 42, 0.6);
+  width: 90%;
+  max-width: 420px;
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 20px 40px rgb(44 19 19 / 25%);
+}
+
+.modal h2 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  color: #dad2d2;
+}
+
+/* ===== INPUTS ===== */
+.modal label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: #cbcbcb ;
+}
+
+.modal input {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #938989;
+  font-size: 1rem;
+}
+
+/* ===== ACTIONS ===== */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+#confirmAIModal {
+  color: #7b9afb;
+}
+#cancelAIModal {
+  color: #ffdbdb;
+}
