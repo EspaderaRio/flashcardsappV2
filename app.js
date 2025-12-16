@@ -20,6 +20,12 @@
     let currentCardIndex = 0;
     let isFlipped = false;
     let isLoading = false;
+   let quizIndex = 0;
+   let quizScore = 0;
+   let quizQuestions = [];
+   let deferredInstallPrompt = null;
+
+
 
     const emojiOptions = ['📚', '🧪', '🎨', '💻', '🌍', '📐', '🎵', '⚽', '🔬', '📖', '🎭', '🏛️', '💼', '🍎', '🚀', '🎯', '💡', '🔧', '🌟', '🎪'];
 
@@ -65,7 +71,10 @@
       } else if (currentView === 'study') {
         content = renderStudyView();
       }
-      
+       else if (currentView === 'quiz') {
+          content = renderQuizView();
+       }
+       
       app.innerHTML = content;
       attachEventListeners();
     }
@@ -260,6 +269,14 @@
       <img src="icons/flashcard.svg" class="icon md" />
     </button>
   ` : ''}
+  
+  ${cards.length > 1 ? `
+  <button id="quizCardsBtn" class="flex-1 py-4 rounded-xl transition-all font-semibold"
+    style="display:flex;align-items:center;justify-content:center;">
+    📝
+  </button>
+` : ''}
+
 </div>
 
 
@@ -275,6 +292,7 @@ ${cards.length === 0 ? `
     ${cardsHTML}
   </div>
 `}
+
             </div>
           </div>
         </div>
@@ -354,6 +372,57 @@ ${cards.length === 0 ? `
         </div>
       `;
     }
+
+function generateQuizQuestions(cards) {
+  return cards.map(card => {
+    const wrongAnswers = cards
+      .filter(c => c.answer !== card.answer)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3)
+      .map(c => c.answer);
+
+    const options = [...wrongAnswers, card.answer]
+      .sort(() => 0.5 - Math.random());
+
+    return {
+      question: card.question,
+      correct: card.answer,
+      options
+    };
+  });
+}
+
+function renderQuizView() {
+  const q = quizQuestions[quizIndex];
+  const progress = ((quizIndex + 1) / quizQuestions.length) * 100;
+
+  return `
+    <div class="p-6 max-w-3xl mx-auto">
+      <button id="exitQuizBtn" class="mb-4">← Exit Quiz</button>
+
+      <div style="height:5px;background:#ddd;border-radius:4px;margin-bottom:16px;">
+        <div style="height:100%;width:${progress}%;background:${config.primary_color};"></div>
+      </div>
+
+      <h2 style="margin-bottom:16px;">${q.question}</h2>
+
+      <div class="grid gap-3">
+        ${q.options.map(opt => `
+          <button class="quiz-option"
+            data-answer="${opt}"
+            style="padding:12px;border-radius:8px;background:${config.card_background};">
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+
+      <p style="margin-top:16px;">
+        Question ${quizIndex + 1} / ${quizQuestions.length}
+      </p>
+    </div>
+  `;
+}
+
 
     function showAddSubjectModal() {
       const fontSize = config.font_size || 12;
@@ -986,6 +1055,18 @@ let aiLoadingEl = null;
           renderApp();
         });
       }
+       
+       const quizBtn = document.getElementById('quizCardsBtn');
+       if (quizBtn) {
+          quizBtn.addEventListener('click', () => {
+             const cards = getCardsForSet(currentSet.set_id);
+             quizQuestions = generateQuizQuestions(cards);
+             quizIndex = 0;
+             quizScore = 0;
+             currentView = 'quiz';
+             renderApp();
+          });
+       }
 
       const backToSubjectsBtn = document.getElementById('backToSubjectsBtn');
       if (backToSubjectsBtn) {
@@ -1053,6 +1134,34 @@ if (aiGenerateBtn) {
     showAIGenerateModal();
   });
 }
+       // QUIZ option click handlers
+if (currentView === 'quiz') {
+  document.querySelectorAll('.quiz-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selected = btn.dataset.answer;
+      const correct = quizQuestions[quizIndex].correct;
+
+      if (selected === correct) quizScore++;
+
+      quizIndex++;
+
+      if (quizIndex >= quizQuestions.length) {
+        showToast(`Quiz complete! Score: ${quizScore}/${quizQuestions.length}`);
+        currentView = 'cards';
+      }
+
+      renderApp();
+    });
+  });
+}
+const exitQuizBtn = document.getElementById('exitQuizBtn');
+if (exitQuizBtn) {
+  exitQuizBtn.addEventListener('click', () => {
+    currentView = 'cards';
+    renderApp();
+  });
+}
+
     }
 
     function adjustColor(color, amount) {
@@ -1152,11 +1261,27 @@ if (aiGenerateBtn) {
 
 window.addEventListener("beforeinstallprompt", e => {
   console.log("✅ beforeinstallprompt fired");
-  e.preventDefault();
+
+  e.preventDefault(); // REQUIRED
   deferredInstallPrompt = e;
 
   const installBtn = document.getElementById("installAppBtn");
   if (installBtn) installBtn.style.display = "block";
+});
+
+document.getElementById("installAppBtn")?.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+
+  deferredInstallPrompt = null;
+
+  document.getElementById("installAppBtn").style.display = "none";
+
+  if (choice.outcome === "accepted") {
+    showToast("App installed 🎉");
+  }
 });
 
 window.addEventListener("appinstalled", () => {
