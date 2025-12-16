@@ -677,6 +677,11 @@ function importCardsFromJsonForCurrentSet() {
     }
 
     async function generateCardsWithAI(topic, count) {
+       if (!navigator.onLine) {
+  showToast("AI generation requires internet");
+  return;
+}
+
       if (!currentSet?.set_id) {
         showToast("No set selected");
         return false;
@@ -1144,4 +1149,14 @@ if (aiGenerateBtn) {
         }
       }
     })();
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("service-worker.js")
+      .then(() => console.log("Service Worker registered"))
+      .catch(err => console.error("SW registration failed", err));
+  });
+}
+
 
