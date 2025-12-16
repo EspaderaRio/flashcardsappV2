@@ -317,18 +317,18 @@ ${cards.length === 0 ? `
               </div>
               
               <div class="flex-1 flex items-center justify-center mb-6">
-                <div class="card-3d w-full" style="max-width: 400px; height: 200px;">
+                <div class="card-3d w-full" style="max-width: 600px; height: 400px;">
                   <div id="cardInner" class="card-inner">
                     <div class="card-front" style="background: ${cardBg}; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
                       <div class="text-center">
-                        <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Question</p>
-                        <p style="font-size: ${fontSize * 1.5}px; color: ${titleColor}; font-weight: 400; line-height: 1.6;">${card.question}</p>
+                        <p style="font-size: ${fontSize * 1}px; color: ${primaryColor}; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Question</p>
+                        <p style="font-size: ${fontSize * 1.75}px; color: ${titleColor}; font-weight: 400; line-height: 1.6;">${card.question}</p>
                       </div>
                     </div>
                     <div class="card-back" style="background: ${primaryColor};">
                       <div class="text-center">
-                        <p style="font-size: ${fontSize * 0.75}px; color: rgba(255,255,255,0.9); font-weight: 400; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Answer</p>
-                        <p style="font-size: ${fontSize * 1.5}px; color: white; font-weight: 400; line-height: 1.6;">${card.answer}</p>
+                        <p style="font-size: ${fontSize * 1}px; color: rgba(255,255,255,0.9); font-weight: 400; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Answer</p>
+                        <p style="font-size: ${fontSize * 1.75}px; color: white; font-weight: 400; line-height: 1.6;">${card.answer}</p>
                       </div>
                     </div>
                   </div>
