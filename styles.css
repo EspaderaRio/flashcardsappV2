@@ -136,3 +136,7 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+.icon.sm { width: 16px; height: 16px; }
+.icon.md { width: 20px; height: 20px; }
+.icon.lg { width: 28px; height: 28px; }
+
