@@ -1150,6 +1150,11 @@ if (aiGenerateBtn) {
       }
     })();
 
+window.addEventListener("beforeinstallprompt", e => {
+  console.log("PWA install available");
+});
+
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
