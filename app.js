@@ -732,6 +732,70 @@ function importCardsFromJsonForCurrentSet() {
         return false;
       }
     }
+
+function showAIGenerateModal() {
+  if (document.querySelector(".modal-overlay")) return;
+
+  const modal = document.createElement("div");
+  modal.className = "modal-overlay";
+
+  modal.innerHTML = `
+    <div class="modal">
+      <h2>Generate Cards with AI</h2>
+
+      <label>
+        Topic
+        <input id="aiTopicInput" type="text" placeholder="e.g. Photosynthesis" />
+      </label>
+
+      <label>
+        Number of cards
+        <input id="aiCountInput" type="number" min="1" max="50" value="10" />
+      </label>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="cancelAIModal">Cancel</button>
+        <button class="btn btn-primary" id="confirmAIModal">
+          Generate
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  modal.querySelector("#aiTopicInput").focus();
+
+  modal.querySelector("#cancelAIModal").onclick = () => modal.remove();
+
+  modal.addEventListener("click", e => {
+    if (e.target === modal) modal.remove();
+  });
+
+  modal.querySelector("#confirmAIModal").onclick = async () => {
+    const btn = modal.querySelector("#confirmAIModal");
+    btn.disabled = true;
+    btn.textContent = "Generating...";
+
+    const topic = modal.querySelector("#aiTopicInput").value.trim();
+    const count = Math.min(
+      50,
+      Math.max(1, parseInt(modal.querySelector("#aiCountInput").value, 10))
+    );
+
+    if (!topic) {
+      showToast("Please enter a topic");
+      btn.disabled = false;
+      btn.textContent = "Generate";
+      return;
+    }
+
+    modal.remove();
+    await generateCardsWithAI(topic, count);
+  };
+}
+
+
+
    
 async function loadAllData() {
   allData = window.dataSdk.getAll();
@@ -977,14 +1041,11 @@ let aiLoadingEl = null;
           renderApp();
         });
       }
-     const aiGenerateBtn = document.getElementById('aiGenerateBtn');
-if (aiGenerateBtn) {
-  aiGenerateBtn.addEventListener('click', async () => {
-    const topic = prompt("Enter topic for flashcards:");
-    if (!topic) return;
+const aiGenerateBtn = document.getElementById("aiGenerateBtn");
 
-    const count = Number(prompt("How many cards?", "5")) || 5;
-    await generateCardsWithAI(topic, count);
+if (aiGenerateBtn) {
+  aiGenerateBtn.addEventListener("click", () => {
+    showAIGenerateModal();
   });
 }
     }
