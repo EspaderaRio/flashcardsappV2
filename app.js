@@ -1150,10 +1150,39 @@ if (aiGenerateBtn) {
       }
     })();
 
+let deferredInstallPrompt = null;
+
 window.addEventListener("beforeinstallprompt", e => {
-  console.log("PWA install available");
+  // Stop browser mini-infobar
+  e.preventDefault();
+
+  deferredInstallPrompt = e;
+
+  const installBtn = document.getElementById("installAppBtn");
+  if (installBtn) {
+    installBtn.style.display = "block";
+  }
 });
 
+document.getElementById("installAppBtn")?.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+
+  deferredInstallPrompt.prompt();
+
+  const choice = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+
+  document.getElementById("installAppBtn").style.display = "none";
+
+  if (choice.outcome === "accepted") {
+    showToast("App installed 🎉");
+  }
+});
+
+window.addEventListener("appinstalled", () => {
+  const installBtn = document.getElementById("installAppBtn");
+  if (installBtn) installBtn.style.display = "none";
+});
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
