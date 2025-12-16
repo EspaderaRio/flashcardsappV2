@@ -1150,46 +1150,33 @@ if (aiGenerateBtn) {
       }
     })();
 
-let deferredInstallPrompt = null;
+const installBtn = document.getElementById("installAppBtn");
 
-window.addEventListener("beforeinstallprompt", e => {
-  // Stop browser mini-infobar
-  e.preventDefault();
+if (installBtn) {
+  installBtn.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) return;
 
-  deferredInstallPrompt = e;
+    deferredInstallPrompt.prompt();
 
-  const installBtn = document.getElementById("installAppBtn");
-  if (installBtn) {
-    installBtn.style.display = "block";
-  }
-});
+    const choice = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
 
-document.getElementById("installAppBtn")?.addEventListener("click", async () => {
-  if (!deferredInstallPrompt) return;
+    installBtn.style.display = "none";
 
-  deferredInstallPrompt.prompt();
-
-  const choice = await deferredInstallPrompt.userChoice;
-  deferredInstallPrompt = null;
-
-  document.getElementById("installAppBtn").style.display = "none";
-
-  if (choice.outcome === "accepted") {
-    showToast("App installed 🎉");
-  }
-});
-
-window.addEventListener("appinstalled", () => {
-  const installBtn = document.getElementById("installAppBtn");
-  if (installBtn) installBtn.style.display = "none";
-});
+    if (choice.outcome === "accepted") {
+      showToast("App installed 🎉");
+    }
+  });
+}
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js");
+    navigator.serviceWorker
+      .register("./service-worker.js")
       .then(() => console.log("Service Worker registered"))
       .catch(err => console.error("SW registration failed", err));
   });
 }
+
 
 
