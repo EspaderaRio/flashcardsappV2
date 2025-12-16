@@ -72,7 +72,7 @@
 
     function renderSubjectsView() {
       const subjects = getSubjects();
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -88,7 +88,7 @@
                 <span style="font-size: ${fontSize * 1.5}px;">${subject.subject_icon}</span>
               </div>
               <div>
-                <h2 style="font-size: ${fontSize * 1.5}px; font-weight: 600; color: ${titleColor};">${subject.subject_name}</h2>
+                <h2 style="font-size: ${fontSize * 1.5}px; font-weight: 400; color: ${titleColor};">${subject.subject_name}</h2>
                 <p style="font-size: ${fontSize * 0.875}px; color: ${subtitleColor};">${sets.length} set${sets.length !== 1 ? 's' : ''}</p>
               </div>
             </div>
@@ -138,7 +138,7 @@
       }
 
       const sets = getSetsForSubject(currentSubject.subject_id);
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -149,7 +149,7 @@
         return `
           <div class="category-card p-6 rounded-2xl" data-set-id="${set.set_id}" style="background: ${cardBg}; box-shadow: 0 4px 12px rgba(0,0,0,0.08); position: relative;">
             <button class="delete-set-btn" data-set-id="${set.set_id}" style="position: absolute; top: 0.75rem; right: 0.75rem; color: ${subtitleColor}; font-size: ${fontSize * 1.2}px; background: none; border: none; cursor: pointer; padding: 0.25rem; line-height: 1;">×</button>
-            <h3 style="font-size: ${fontSize * 1.3}px; font-weight: 600; color: ${titleColor}; margin-bottom: 0.5rem;">${set.set_name}</h3>
+            <h3 style="font-size: ${fontSize * 1.3}px; font-weight: 400; color: ${titleColor}; margin-bottom: 0.5rem;">${set.set_name}</h3>
             <p style="font-size: ${fontSize * 0.875}px; color: ${subtitleColor};">${cards.length} card${cards.length !== 1 ? 's' : ''}</p>
             ${cards.length > 0 ? `
               <button class="study-set-btn mt-4 px-4 py-2 rounded-lg" data-set-id="${set.set_id}" style="background: ${primaryColor}; color: white; font-size: ${fontSize * 0.875}px;">
@@ -170,9 +170,9 @@
                 </button>
                 <div class="text-center">
                   <div style="font-size: ${fontSize * 2}px; margin-bottom: 0.25rem;">${currentSubject.subject_icon}</div>
-                  <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 600; color: ${titleColor};">${currentSubject.subject_name}</h2>
+                  <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 400; color: ${titleColor};">${currentSubject.subject_name}</h2>
                 </div>
-                <div style="width: 80px;"></div>
+                <div style="width: 50px;"></div>
               </div>
 
               <div class="mb-6">
@@ -203,7 +203,7 @@
             return '';
       }
       const cards = getCardsForSet(currentSet.set_id);
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -213,11 +213,11 @@
         <div class="p-4 rounded-xl" style="background: ${cardBg}; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative;">
           <button class="delete-card-btn" data-id="${card.id}" style="position: absolute; top: 0.5rem; right: 0.5rem; color: ${subtitleColor}; font-size: ${fontSize * 1.2}px; background: none; border: none; cursor: pointer; padding: 0.25rem; line-height: 1;">×</button>
           <div style="margin-bottom: 0.75rem;">
-            <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 600; text-transform: uppercase; margin-bottom: 0.25rem;">Q</p>
+            <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 400; text-transform: uppercase; margin-bottom: 0.25rem;">Q</p>
             <p style="font-size: ${fontSize}px; color: ${titleColor};">${card.question}</p>
           </div>
           <div>
-            <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 600; text-transform: uppercase; margin-bottom: 0.25rem;">A</p>
+            <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 400; text-transform: uppercase; margin-bottom: 0.25rem;">A</p>
             <p style="font-size: ${fontSize}px; color: ${subtitleColor};">${card.answer}</p>
           </div>
         </div>
@@ -232,10 +232,10 @@
                   ← Back
                 </button>
                 <div class="text-center">
-                  <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 600; color: ${titleColor};">${currentSet.set_name}</h2>
+                  <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 400; color: ${titleColor};">${currentSet.set_name}</h2>
                   <p style="font-size: ${fontSize * 0.875}px; color: ${subtitleColor};">${cards.length} card${cards.length !== 1 ? 's' : ''}</p>
                 </div>
-                <div style="width: 80px;"></div>
+                <div style="width: 50px;"></div>
               </div>
 
 <div class="mb-6 flex gap-3 relative z-10 cards-actions">
@@ -290,7 +290,7 @@ ${cards.length === 0 ? `
       }
 
       const card = cards[currentCardIndex];
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -306,29 +306,29 @@ ${cards.length === 0 ? `
                   ← Back
                 </button>
                 <div class="text-center">
-                  <h2 style="font-size: ${fontSize * 1.5}px; font-weight: 600; color: ${titleColor};">${currentSet.set_name}</h2>
+                  <h2 style="font-size: ${fontSize * 1.5}px; font-weight: 400; color: ${titleColor};">${currentSet.set_name}</h2>
                   <p style="font-size: ${fontSize * 0.875}px; color: ${subtitleColor};">Card ${currentCardIndex + 1} of ${cards.length}</p>
                 </div>
-                <div style="width: 80px;"></div>
+                <div style="width: 50px;"></div>
               </div>
               
-              <div class="w-full rounded-full mb-6" style="background: rgba(0,0,0,0.1); height: 8px;">
+              <div class="w-full rounded-full mb-6" style="background: rgba(0,0,0,0.1); height: 5px;">
                 <div class="progress-bar h-full rounded-full" style="width: ${progress}%; background: ${primaryColor};"></div>
               </div>
               
               <div class="flex-1 flex items-center justify-center mb-6">
-                <div class="card-3d w-full" style="max-width: 600px; height: 400px;">
+                <div class="card-3d w-full" style="max-width: 400px; height: 200px;">
                   <div id="cardInner" class="card-inner">
                     <div class="card-front" style="background: ${cardBg}; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
                       <div class="text-center">
-                        <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Question</p>
-                        <p style="font-size: ${fontSize * 1.5}px; color: ${titleColor}; font-weight: 500; line-height: 1.6;">${card.question}</p>
+                        <p style="font-size: ${fontSize * 0.75}px; color: ${primaryColor}; font-weight: 400; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Question</p>
+                        <p style="font-size: ${fontSize * 1.5}px; color: ${titleColor}; font-weight: 400; line-height: 1.6;">${card.question}</p>
                       </div>
                     </div>
                     <div class="card-back" style="background: ${primaryColor};">
                       <div class="text-center">
-                        <p style="font-size: ${fontSize * 0.75}px; color: rgba(255,255,255,0.9); font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Answer</p>
-                        <p style="font-size: ${fontSize * 1.5}px; color: white; font-weight: 500; line-height: 1.6;">${card.answer}</p>
+                        <p style="font-size: ${fontSize * 0.75}px; color: rgba(255,255,255,0.9); font-weight: 400; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 1rem;">Answer</p>
+                        <p style="font-size: ${fontSize * 1.5}px; color: white; font-weight: 400; line-height: 1.6;">${card.answer}</p>
                       </div>
                     </div>
                   </div>
@@ -356,7 +356,7 @@ ${cards.length === 0 ? `
     }
 
     function showAddSubjectModal() {
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const subtitleColor = config.secondary_color || defaultConfig.secondary_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
@@ -366,16 +366,16 @@ ${cards.length === 0 ? `
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content" style="background: ${cardBg}; padding: 2rem;">
-          <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 600; color: ${titleColor}; margin-bottom: 1.5rem;">Add New Subject</h2>
+          <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 400; color: ${titleColor}; margin-bottom: 1.5rem;">Add New Subject</h2>
           
           <form id="addSubjectForm">
             <div style="margin-bottom: 1.5rem;">
-              <label style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 500; color: ${titleColor}; margin-bottom: 0.5rem;">Subject Name</label>
+              <label style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 400; color: ${titleColor}; margin-bottom: 0.5rem;">Subject Name</label>
               <input type="text" id="subjectNameInput" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: ${fontSize}px; color: ${titleColor};" placeholder="e.g., Biology, History...">
             </div>
 
             <div style="margin-bottom: 1.5rem;">
-              <label style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 500; color: ${titleColor}; margin-bottom: 0.5rem;">Choose Icon</label>
+              <label style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 400; color: ${titleColor}; margin-bottom: 0.5rem;">Choose Icon</label>
               <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.5rem;">
                 ${emojiOptions.map((emoji, idx) => `
                   <button type="button" class="emoji-btn" data-emoji="${emoji}" style="padding: 0.75rem; border: 2px solid ${idx === 0 ? primaryColor : '#e2e8f0'}; border-radius: 0.5rem; font-size: ${fontSize * 1.5}px; cursor: pointer; background: ${cardBg}; transition: all 0.2s;">
@@ -390,7 +390,7 @@ ${cards.length === 0 ? `
               <button type="button" id="cancelSubjectBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: #e2e8f0; color: ${titleColor}; border: none; cursor: pointer;">
                 Cancel
               </button>
-              <button type="submit" id="submitSubjectBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: ${primaryColor}; color: white; border: none; cursor: pointer; font-weight: 600;">
+              <button type="submit" id="submitSubjectBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: ${primaryColor}; color: white; border: none; cursor: pointer; font-weight: 400;">
                 <span id="submitSubjectText">Add Subject</span>
               </button>
             </div>
@@ -511,7 +511,7 @@ function importCardsFromJsonForCurrentSet() {
 }
 
     function showAddSetModal() {
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
       const cardBg = config.card_background || defaultConfig.card_background;
@@ -520,11 +520,11 @@ function importCardsFromJsonForCurrentSet() {
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content" style="background: ${cardBg}; padding: 2rem;">
-          <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 600; color: ${titleColor}; margin-bottom: 1.5rem;">Add New Set</h2>
+          <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 400; color: ${titleColor}; margin-bottom: 1.5rem;">Add New Set</h2>
           
           <form id="addSetForm">
             <div style="margin-bottom: 1.5rem;">
-              <label for="setNameInput" style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 500; color: ${titleColor}; margin-bottom: 0.5rem;">Set Name</label>
+              <label for="setNameInput" style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 400; color: ${titleColor}; margin-bottom: 0.5rem;">Set Name</label>
               <input type="text" id="setNameInput" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: ${fontSize}px; color: ${titleColor};" placeholder="e.g., Chapter 1, Vocabulary...">
             </div>
 
@@ -532,7 +532,7 @@ function importCardsFromJsonForCurrentSet() {
               <button type="button" id="cancelSetBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: #e2e8f0; color: ${titleColor}; border: none; cursor: pointer;">
                 Cancel
               </button>
-              <button type="submit" id="submitSetBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: ${primaryColor}; color: white; border: none; cursor: pointer; font-weight: 600;">
+              <button type="submit" id="submitSetBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: ${primaryColor}; color: white; border: none; cursor: pointer; font-weight: 400;">
                 <span id="submitSetText">Add Set</span>
               </button>
             </div>
@@ -591,7 +591,7 @@ function importCardsFromJsonForCurrentSet() {
     }
 
     function showAddCardModal() {
-      const fontSize = config.font_size || 16;
+      const fontSize = config.font_size || 10;
       const titleColor = config.text_color || defaultConfig.text_color;
       const primaryColor = config.primary_color || defaultConfig.primary_color;
       const cardBg = config.card_background || defaultConfig.card_background;
@@ -600,16 +600,16 @@ function importCardsFromJsonForCurrentSet() {
       modal.className = 'modal-overlay';
       modal.innerHTML = `
         <div class="modal-content" style="background: ${cardBg}; padding: 2rem;">
-          <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 600; color: ${titleColor}; margin-bottom: 1.5rem;">Add New Card</h2>
+          <h2 style="font-size: ${fontSize * 1.8}px; font-weight: 400; color: ${titleColor}; margin-bottom: 1.5rem;">Add New Card</h2>
           
           <form id="addCardForm">
             <div style="margin-bottom: 1.5rem;">
-              <label for="questionInput" style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 500; color: ${titleColor}; margin-bottom: 0.5rem;">Question</label>
+              <label for="questionInput" style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 400; color: ${titleColor}; margin-bottom: 0.5rem;">Question</label>
               <textarea id="questionInput" required rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: ${fontSize}px; color: ${titleColor}; resize: vertical;" placeholder="Enter the question..."></textarea>
             </div>
 
             <div style="margin-bottom: 1.5rem;">
-              <label for="answerInput" style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 500; color: ${titleColor}; margin-bottom: 0.5rem;">Answer</label>
+              <label for="answerInput" style="display: block; font-size: ${fontSize * 0.875}px; font-weight: 400; color: ${titleColor}; margin-bottom: 0.5rem;">Answer</label>
               <textarea id="answerInput" required rows="3" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: ${fontSize}px; color: ${titleColor}; resize: vertical;" placeholder="Enter the answer..."></textarea>
             </div>
 
@@ -617,7 +617,7 @@ function importCardsFromJsonForCurrentSet() {
               <button type="button" id="cancelCardBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: #e2e8f0; color: ${titleColor}; border: none; cursor: pointer;">
                 Cancel
               </button>
-              <button type="submit" id="submitCardBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: ${primaryColor}; color: white; border: none; cursor: pointer; font-weight: 600;">
+              <button type="submit" id="submitCardBtn" style="flex: 1; padding: 0.75rem; border-radius: 0.5rem; font-size: ${fontSize}px; background: ${primaryColor}; color: white; border: none; cursor: pointer; font-weight: 400;">
                 <span id="submitCardText">Add Card</span>
               </button>
             </div>
@@ -750,7 +750,7 @@ let aiLoadingEl = null;
 
 
    function showToast(message) {
-  const fontSize = config.font_size || 16;
+  const fontSize = config.font_size || 10;
 
   // Try to reuse existing toast
   let toast = document.getElementById('toast');
