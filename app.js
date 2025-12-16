@@ -1150,24 +1150,19 @@ if (aiGenerateBtn) {
       }
     })();
 
-const installBtn = document.getElementById("installAppBtn");
+window.addEventListener("beforeinstallprompt", e => {
+  console.log("✅ beforeinstallprompt fired");
+  e.preventDefault();
+  deferredInstallPrompt = e;
 
-if (installBtn) {
-  installBtn.addEventListener("click", async () => {
-    if (!deferredInstallPrompt) return;
+  const installBtn = document.getElementById("installAppBtn");
+  if (installBtn) installBtn.style.display = "block";
+});
 
-    deferredInstallPrompt.prompt();
+window.addEventListener("appinstalled", () => {
+  console.log("🎉 App installed");
+});
 
-    const choice = await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-
-    installBtn.style.display = "none";
-
-    if (choice.outcome === "accepted") {
-      showToast("App installed 🎉");
-    }
-  });
-}
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
