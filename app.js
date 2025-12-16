@@ -240,23 +240,23 @@
 
 <div class="mb-6 flex gap-3 relative z-10 cards-actions">
   <button id="addCardBtn" class="flex-1 py-4 rounded-xl transition-all font-semibold"
-    style="background: ${primaryColor}; color: white; font-size: ${fontSize * 1.1}px;">
+  style="display: flex; align-items: center; justify-content: center;">
     <img src="icons/add.svg" class="icon md" />
   </button>
 
   <button id="aiGenerateBtn" class="flex-1 py-4 rounded-xl transition-all font-semibold"
-    style="background:#0f172a;color:white;">
+  style="display: flex; align-items: center; justify-content: center;">
     <img src="icons/ai.svg" class="icon md" />
   </button>
 
   <button id="importCardsJsonBtn" class="flex-1 py-4 rounded-xl transition-all font-semibold"
-    style="background:#e2e8f0;color:#1e293b;">
+  style="display: flex; align-items: center; justify-content: center;">
     <img src="icons/import.svg" class="icon md" />
   </button>
 
   ${cards.length > 0 ? `
     <button id="studyCardsBtn" class="flex-1 py-4 rounded-xl transition-all font-semibold"
-      style="background: ${cardBg}; color: ${titleColor}; font-size: ${fontSize * 1.1}px;">
+    style="display: flex; align-items: center; justify-content: center;">
       <img src="icons/flashcard.svg" class="icon md" />
     </button>
   ` : ''}
