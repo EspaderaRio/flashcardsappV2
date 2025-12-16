@@ -2,10 +2,10 @@
   "name": "Flashcard Study",
   "short_name": "Flashcards",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f0f4f8",
   "theme_color": "#2563eb",
-  "description": "Study flashcards offline",
   "icons": [
     {
       "src": "icons/icon-192.png",
