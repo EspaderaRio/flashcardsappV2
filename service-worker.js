@@ -15,44 +15,19 @@ const ASSETS = [
   "./icons/flashcard.svg"
 ];
 
-// INSTALL — cache files safely
 self.addEventListener("install", event => {
   event.waitUntil(
-    (async () => {
-      const cache = await caches.open(CACHE_NAME);
-
-      for (const asset of ASSETS) {
-        try {
-          await cache.add(asset);
-        } catch (err) {
-          console.warn("Failed to cache:", asset);
-        }
-      }
-    })()
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
+  self.skipWaiting();
 });
 
-// ACTIVATE — clean old caches
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
-    )
-  );
+  event.waitUntil(self.clients.claim());
 });
 
-// FETCH — offline first
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
-
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      if (cached) return cached;
-      return fetch(event.request);
-    })
+    caches.match(event.request).then(res => res || fetch(event.request))
   );
 });
