@@ -10,45 +10,53 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="styles.css">
-  <script>
-    // /_sdk/element_sdk.js
+<script>
 (function () {
-  let config = {};
+  var config = {};
 
   window.elementSdk = {
-    init(api) {
-      // Store defaults
-      config = { ...(api?.defaultConfig || {}) };
+    init: function (api) {
+      // Store defaults safely
+      if (api && api.defaultConfig) {
+        config = Object.assign({}, api.defaultConfig);
+      } else {
+        config = {};
+      }
 
       // Expose fake edit panel updates if needed
       window.__elementApi = api;
     },
 
-    setConfig(newConfig) {
-      config = { ...config, ...newConfig };
+    setConfig: function (newConfig) {
+      config = Object.assign({}, config, newConfig);
 
       // Notify app if config changes
-      if (window.__elementApi?.onConfigChange) {
+      if (
+        window.__elementApi &&
+        typeof window.__elementApi.onConfigChange === "function"
+      ) {
         window.__elementApi.onConfigChange(config);
       }
     },
 
-    getConfig() {
-      return { ...config };
+    getConfig: function () {
+      return Object.assign({}, config);
     }
   };
 })();
-  </script>
+</script>
+
 <script>
 (function () {
-  const STORAGE_KEY = "flashcards_data";
-  let handler = null;
-  let data = [];
+  var STORAGE_KEY = "flashcards_data";
+  var handler = null;
+  var data = [];
 
   function load() {
     try {
-      data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-    } catch {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      data = stored ? JSON.parse(stored) : [];
+    } catch (e) {
       data = [];
     }
   }
@@ -59,55 +67,74 @@
 
   function notify() {
     if (handler && typeof handler.onDataChanged === "function") {
-      handler.onDataChanged([...data]);
+      handler.onDataChanged(data.slice());
     }
   }
 
   function generateId() {
-    return "id_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+    return (
+      "id_" +
+      Date.now() +
+      "_" +
+      Math.random().toString(36).slice(2, 8)
+    );
   }
 
   window.dataSdk = {
-    async init(h) {
+    init: function (h) {
       handler = h;
       load();
       notify();
-      return { isOk: true };
+      return Promise.resolve({ isOk: true });
     },
 
-    async create(item) {
-      const newItem = {
-        ...item,
+    create: function (item) {
+      var newItem = Object.assign({}, item, {
         id: generateId()
-      };
+      });
+
       data.push(newItem);
       save();
       notify();
-      return { isOk: true, item: newItem };
+
+      return Promise.resolve({ isOk: true, item: newItem });
     },
 
-    async delete({ id }, silent = false) {
-     if (!id) return { isOk: false };
-     data = data.filter(d => d.id !== id);
-     save();
-     if (!silent) notify();
-     return { isOk: true };
-    },
-
-    async update(updatedItem) {
-      if (!updatedItem?.id) return { isOk: false };
-
-      const index = data.findIndex(d => d.id === updatedItem.id);
-      if (index !== -1) {
-        data[index] = updatedItem;
-        save();
-        notify();
+    delete: function (opts, silent) {
+      if (!opts || !opts.id) {
+        return Promise.resolve({ isOk: false });
       }
-      return { isOk: true };
+
+      data = data.filter(function (d) {
+        return d.id !== opts.id;
+      });
+
+      save();
+      if (!silent) notify();
+
+      return Promise.resolve({ isOk: true });
     },
 
-    getAll() {
-      return [...data];
+    update: function (updatedItem) {
+      if (!updatedItem || !updatedItem.id) {
+        return Promise.resolve({ isOk: false });
+      }
+
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].id === updatedItem.id) {
+          data[i] = updatedItem;
+          break;
+        }
+      }
+
+      save();
+      notify();
+
+      return Promise.resolve({ isOk: true });
+    },
+
+    getAll: function () {
+      return data.slice();
     }
   };
 })();
