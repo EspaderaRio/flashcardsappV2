@@ -1,42 +1,58 @@
 const CACHE_NAME = "flashcards-v1";
 
+// Use RELATIVE paths (GitHub Pages safe)
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/styles.css",
-  "/app.js",
-  "/manifest.json",
-  "/icons/add.svg",
-  "/icons/ai.svg",
-  "/icons/import.svg",
-  "/icons/flashcard.svg"
+  "./",
+  "./index.html",
+  "./app.js",
+  "./styles.css",
+  "./manifest.json",
+
+  // SVG icons
+  "./icons/add.svg",
+  "./icons/ai.svg",
+  "./icons/import.svg",
+  "./icons/flashcard.svg"
 ];
 
-// Install → cache files
+// INSTALL — cache files safely
 self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      for (const asset of ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn("Failed to cache:", asset);
+        }
+      }
+    })()
   );
 });
 
-// Activate → clean old caches
+// ACTIVATE — clean old caches
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
       )
     )
   );
 });
 
-// Fetch → offline-first
+// FETCH — offline first
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
 
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request)
-    )
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request);
+    })
   );
 });
