@@ -1,33 +1,30 @@
-const CACHE_NAME = "flashcards-v1";
+const CACHE = "flashcards-v1";
 
-// Use RELATIVE paths (GitHub Pages safe)
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./app.js",
-  "./styles.css",
-  "./manifest.json",
-
-  // SVG icons
-  "./icons/add.svg",
-  "./icons/ai.svg",
-  "./icons/import.svg",
-  "./icons/flashcard.svg"
-];
-
-self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c =>
+      c.addAll([
+        "./",
+        "./index.html",
+        "./app.js",
+        "./manifest.json",
+        "./styles.css",
+        "./icons/add.svg",
+        "./icons/ai.svg",
+        "./icons/import.svg",
+        "./icons/flashcard.svg"
+      ])
+    )
   );
   self.skipWaiting();
 });
 
-self.addEventListener("activate", event => {
-  event.waitUntil(self.clients.claim());
+self.addEventListener("activate", e => {
+  e.waitUntil(self.clients.claim());
 });
 
-self.addEventListener("fetch", event => {
-  event.respondWith(
-    caches.match(event.request).then(res => res || fetch(event.request))
+self.addEventListener("fetch", e => {
+  e.respondWith(
+    caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
