@@ -7,7 +7,11 @@ const urlsToCache = [
   "./manifest.json",
   "./sw.js", 
 "./tailwindcss.js", 
-"./icons/icon-512.png"
+"./icons/icon-512.png",
+ "./icons/add.svg",
+  "./icons/ai.svg",
+"./icons/flashcard.svg",
+  "./icons/import.svg" 
 ];
 
 self.addEventListener("install", (event) => {
