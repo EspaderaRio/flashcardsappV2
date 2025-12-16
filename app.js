@@ -396,32 +396,72 @@ function renderQuizView() {
   const q = quizQuestions[quizIndex];
   const progress = ((quizIndex + 1) / quizQuestions.length) * 100;
 
+  const fontSize = config.font_size || 14;
+  const primary = config.primary_color;
+  const bg = config.card_background;
+  const text = config.text_color;
+  const sub = config.secondary_color;
+
   return `
-    <div class="p-6 max-w-3xl mx-auto">
-      <button id="exitQuizBtn" class="mb-4">← Exit Quiz</button>
+    <div class="w-full h-full overflow-auto">
+      <div class="min-h-full flex flex-col p-6">
+        <div class="max-w-3xl w-full mx-auto fade-in">
 
-      <div style="height:5px;background:#ddd;border-radius:4px;margin-bottom:16px;">
-        <div style="height:100%;width:${progress}%;background:${config.primary_color};"></div>
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-6">
+            <button id="exitQuizBtn"
+              class="px-4 py-2 rounded-lg"
+              style="background:${bg};color:${text};box-shadow:0 2px 8px rgba(0,0,0,.08);">
+              ← Exit
+            </button>
+
+            <p style="font-size:${fontSize}px;color:${sub};">
+              Question ${quizIndex + 1} / ${quizQuestions.length}
+            </p>
+          </div>
+
+          <!-- Progress -->
+          <div class="w-full h-2 rounded-full mb-8"
+               style="background:rgba(0,0,0,.1);">
+            <div class="h-full rounded-full"
+                 style="width:${progress}%;background:${primary};transition:width .3s;">
+            </div>
+          </div>
+
+          <!-- Question Card -->
+          <div class="p-6 rounded-2xl mb-8"
+               style="background:${bg};box-shadow:0 8px 24px rgba(0,0,0,.12);">
+            <h2 style="font-size:${fontSize * 1.5}px;color:${text};line-height:1.6;">
+              ${q.question}
+            </h2>
+          </div>
+
+          <!-- Options -->
+          <div class="grid gap-4">
+            ${q.options.map(opt => `
+              <button class="quiz-option"
+                data-answer="${opt}"
+                style="
+                  padding:16px;
+                  border-radius:14px;
+                  background:${bg};
+                  color:${text};
+                  font-size:${fontSize}px;
+                  text-align:left;
+                  box-shadow:0 4px 12px rgba(0,0,0,.08);
+                  transition:all .2s;
+                ">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+
+        </div>
       </div>
-
-      <h2 style="margin-bottom:16px;">${q.question}</h2>
-
-      <div class="grid gap-3">
-        ${q.options.map(opt => `
-          <button class="quiz-option"
-            data-answer="${opt}"
-            style="padding:12px;border-radius:8px;background:${config.card_background};">
-            ${opt}
-          </button>
-        `).join('')}
-      </div>
-
-      <p style="margin-top:16px;">
-        Question ${quizIndex + 1} / ${quizQuestions.length}
-      </p>
     </div>
   `;
 }
+
 
 
     function showAddSubjectModal() {
