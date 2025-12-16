@@ -74,6 +74,10 @@
        else if (currentView === 'quiz') {
           content = renderQuizView();
        }
+       else if (currentView === 'quiz-result') {
+          content = renderQuizResultView();
+       }
+
        
       app.innerHTML = content;
       attachEventListeners();
@@ -408,27 +412,32 @@ function renderQuizView() {
         <div class="max-w-3xl w-full mx-auto fade-in">
 
           <!-- Header -->
-          <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center justify-between mb-4">
             <button id="exitQuizBtn"
               class="px-4 py-2 rounded-lg"
               style="background:${bg};color:${text};box-shadow:0 2px 8px rgba(0,0,0,.08);">
               ← Exit
             </button>
 
-            <p style="font-size:${fontSize}px;color:${sub};">
-              Question ${quizIndex + 1} / ${quizQuestions.length}
-            </p>
+            <div style="text-align:right;">
+              <p style="font-size:${fontSize}px;color:${sub};">
+                Question ${quizIndex + 1} / ${quizQuestions.length}
+              </p>
+              <p style="font-size:${fontSize}px;color:${primary};font-weight:600;">
+                Score: ${quizScore}
+              </p>
+            </div>
           </div>
 
           <!-- Progress -->
-          <div class="w-full h-2 rounded-full mb-8"
+          <div class="w-full h-2 rounded-full mb-6"
                style="background:rgba(0,0,0,.1);">
             <div class="h-full rounded-full"
                  style="width:${progress}%;background:${primary};transition:width .3s;">
             </div>
           </div>
 
-          <!-- Question Card -->
+          <!-- Question -->
           <div class="p-6 rounded-2xl mb-8"
                style="background:${bg};box-shadow:0 8px 24px rgba(0,0,0,.12);">
             <h2 style="font-size:${fontSize * 1.5}px;color:${text};line-height:1.6;">
@@ -462,7 +471,43 @@ function renderQuizView() {
   `;
 }
 
+function renderQuizResultView() {
+  const fontSize = config.font_size || 14;
+  const primary = config.primary_color;
+  const bg = config.card_background;
+  const text = config.text_color;
 
+  return `
+    <div class="w-full h-full flex items-center justify-center p-6 fade-in">
+      <div class="max-w-md w-full p-8 rounded-2xl text-center"
+           style="background:${bg};box-shadow:0 10px 30px rgba(0,0,0,.15);">
+
+        <h2 style="font-size:${fontSize * 2}px;color:${text};margin-bottom:12px;">
+          Quiz Complete 🎉
+        </h2>
+
+        <p style="font-size:${fontSize * 1.2}px;color:${text};margin-bottom:24px;">
+          Your score
+        </p>
+
+        <div style="
+          font-size:${fontSize * 3}px;
+          font-weight:700;
+          color:${primary};
+          margin-bottom:32px;
+        ">
+          ${quizScore} / ${quizQuestions.length}
+        </div>
+
+        <button id="exitQuizBtn"
+          class="w-full py-4 rounded-xl font-semibold"
+          style="background:${primary};color:white;">
+          Back to Cards
+        </button>
+      </div>
+    </div>
+  `;
+}
 
     function showAddSubjectModal() {
       const fontSize = config.font_size || 12;
@@ -1185,11 +1230,9 @@ if (currentView === 'quiz') {
 
       quizIndex++;
 
-      if (quizIndex >= quizQuestions.length) {
-        showToast(`Quiz complete! Score: ${quizScore}/${quizQuestions.length}`);
-        currentView = 'cards';
-      }
-
+if (quizIndex >= quizQuestions.length) {
+  currentView = 'quiz-result';
+}
       renderApp();
     });
   });
